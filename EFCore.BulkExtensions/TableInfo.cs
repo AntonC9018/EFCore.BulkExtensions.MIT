@@ -29,11 +29,11 @@ public class TableInfo
         
     }
     public string? Schema { get; set; }
-    public string SchemaFormated => Schema != null ? $"[{Schema}]." : "";
+    public string SchemaFormatted => Schema != null ? $"[{Schema}]." : "";
     public string? TempSchema { get; set; }
     public string TempSchemaFormated => TempSchema != null ? $"[{TempSchema}]." : "";
     public string? TableName { get; set; }
-    public string FullTableName => $"{SchemaFormated}[{TableName}]";
+    public string FullTableName => $"{SchemaFormatted}[{TableName}]";
     public Dictionary<string, string> PrimaryKeysPropertyColumnNameDict { get; set; } = null!;
     public Dictionary<string, string> EntityPKPropertyColumnNameDict { get; set; } = null!;
     public bool HasSinglePrimaryKey { get; set; }
@@ -43,7 +43,7 @@ public class TableInfo
     public string? TempTableSufix { get; set; }
     public string? TempTableName { get; set; }
     public string FullTempTableName => $"{TempSchemaFormated}[{TempDBPrefix}{TempTableName}]";
-    public string FullTempOutputTableName => $"{SchemaFormated}[{TempDBPrefix}{TempTableName}Output]";
+    public string FullTempOutputTableName => $"{SchemaFormatted}[{TempDBPrefix}{TempTableName}Output]";
 
     public bool CreatedOutputTable => BulkConfig.SetOutputIdentity || BulkConfig.CalculateStats;
 
@@ -1076,7 +1076,7 @@ public class TableInfo
             }
             
             
-            var customPK = tableInfo.PrimaryKeysPropertyColumnNameDict.Values;
+            var customPK = tableInfo.PrimaryKeysPropertyColumnNameDict.Keys;
 
             if (countDiff < 0)
             {
