@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
@@ -14,7 +15,7 @@ namespace EFCore.BulkExtensions.SqlAdapters.SqlServer;
 public class SqlQueryBuilderSqlServer : SqlAdapters.QueryBuilderExtensions
 {
     /// <inheritdoc/>
-    public override object CreateParameter(SqlParameter sqlParameter)
+    public override DbParameter CreateParameter(SqlParameter sqlParameter)
     {
         throw new NotImplementedException();
     }

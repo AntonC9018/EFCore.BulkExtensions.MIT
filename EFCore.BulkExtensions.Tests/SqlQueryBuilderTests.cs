@@ -195,7 +195,10 @@ public class SqlQueryBuilderUnitTests
             TableName = nameof(Item),
             TempTableName = nameof(Item) + "Temp1234",
             TempTableSufix = "Temp1234",
-            PrimaryKeysPropertyColumnNameDict = new Dictionary<string, string> { { nameof(Item.ItemId), nameof(Item.ItemId) } },
+            PrimaryKeysPropertyColumnNameDict = new Dictionary<string, string> 
+            {
+                { nameof(Item.ItemId), nameof(Item.ItemId) } 
+            },
             BulkConfig = new BulkConfig()
             {
                 OnConflictUpdateWhereSql = onConflictUpdateWhereSql
@@ -221,7 +224,10 @@ public class SqlQueryBuilderUnitTests
             TableName = nameof(Item),
             TempTableName = nameof(Item) + "Temp1234",
             TempTableSufix = "Temp1234",
-            PrimaryKeysPropertyColumnNameDict = new Dictionary<string, string> { { nameof(Item.ItemId), nameof(Item.ItemId) } },
+            PrimaryKeysPropertyColumnNameDict = new Dictionary<string, string>
+            {
+                { nameof(Item.ItemId), nameof(Item.ItemId) }
+            },
             BulkConfig = new BulkConfig()
             {
                 OnConflictUpdateWhereSql = onConflictUpdateWhereSql

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 
 namespace EFCore.BulkExtensions.SqlAdapters.PostgreSql;
@@ -344,7 +345,7 @@ public class SqlQueryBuilderPostgreSql : SqlAdapters.QueryBuilderExtensions
     /// </summary>
     /// <param name="sqlParameter"></param>
     /// <returns></returns>
-    public override object CreateParameter(SqlParameter sqlParameter)
+    public override DbParameter CreateParameter(SqlParameter sqlParameter)
     {
         return new Npgsql.NpgsqlParameter(sqlParameter.ParameterName, sqlParameter.Value);
     }

@@ -45,31 +45,47 @@ public static class SqlAdaptersMapping
         //Context.Database. methods: -IsSqlServer() -IsNpgsql() -IsMySql() -IsSqlite() requires specific provider so instead here used -ProviderName
         
         var providerName = dbContext.Database.ProviderName;
-        Type? dbServerType;
-        var efCoreBulkExtensionsSqlAdaptersText = "EFCore.BulkExtensions.SqlAdapters";
+        const string efCoreBulkExtensionsSqlAdaptersText = "EFCore.BulkExtensions.SqlAdapters";
         
         IDbServer dbServerInstance;
 
-        if (providerName?.ToLower().EndsWith(DbServerType.PostgreSQL.ToString().ToLower()) ?? false)
+        bool CheckName(DbServerType type)
         {
-            dbServerType = Type.GetType(efCoreBulkExtensionsSqlAdaptersText + ".PostgreSql.PostgreSqlDbServer");
-            dbServerInstance = _postgreSql ??= (IDbServer)Activator.CreateInstance(dbServerType ?? typeof(int))!;    
+            if (providerName is null)
+                return false;
+            var name = type.ToString();
+            return providerName.EndsWith(name, StringComparison.OrdinalIgnoreCase);
         }
-        else if (providerName?.ToLower().EndsWith(DbServerType.MySQL.ToString().ToLower()) ?? false)
+
+        static IDbServer CreateServerInstance(DbServerType type)
         {
-            dbServerType = Type.GetType(efCoreBulkExtensionsSqlAdaptersText + ".MySql.MySqlDbServer");
-            dbServerInstance = _mySql ??= (IDbServer)Activator.CreateInstance(dbServerType ?? typeof(int))!;
+            var nameEnd = type switch
+            {
+                DbServerType.PostgreSQL => ".PostgreSql.PostgreSqlDbServer",
+                DbServerType.MySQL => ".MySql.MySqlDbServer",
+                DbServerType.SQLite => ".SQLite.SqlLiteDbServer",
+                _ => ".SqlServer.SqlServerDbServer"
+            };
+            var dbServerType = Type.GetType(efCoreBulkExtensionsSqlAdaptersText + nameEnd);
+            return (IDbServer)Activator.CreateInstance(dbServerType ?? typeof(int))!;
+        }
+
+        if (CheckName(DbServerType.PostgreSQL))
+        {
+            dbServerInstance = _postgreSql ??= CreateServerInstance(DbServerType.PostgreSQL);    
+        }
+        else if (CheckName(DbServerType.MySQL))
+        {
+            dbServerInstance = _mySql ??= CreateServerInstance(DbServerType.MySQL);
 
         }
-        else if (providerName?.ToLower().EndsWith(DbServerType.SQLite.ToString().ToLower()) ?? false)
+        else if (CheckName(DbServerType.SQLite))
         {
-            dbServerType = Type.GetType(efCoreBulkExtensionsSqlAdaptersText + ".SQLite.SqlLiteDbServer");
-            dbServerInstance = _sqlLite ??= (IDbServer)Activator.CreateInstance(dbServerType ?? typeof(int))!;
+            dbServerInstance = _sqlLite ??= CreateServerInstance(DbServerType.SQLite);
         }
         else
         {
-            dbServerType = Type.GetType(efCoreBulkExtensionsSqlAdaptersText + ".SqlServer.SqlServerDbServer");
-            dbServerInstance = _msSql ??= (IDbServer)Activator.CreateInstance(dbServerType ?? typeof(int))!;
+            dbServerInstance = _msSql ??= CreateServerInstance(DbServerType.SQLServer);
         }
 
         return dbServerInstance;

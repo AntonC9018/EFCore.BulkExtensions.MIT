@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq.Expressions;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -29,11 +30,11 @@ public abstract class QueryBuilderExtensions
     public abstract string RestructureForBatch(string sql, bool isDelete = false);
 
     /// <summary>
-    /// Returns a DbParameters intanced per provider
+    /// Returns a DbParameters instanced per provider
     /// </summary>
     /// <param name="sqlParameter"></param>
     /// <returns></returns>
-    public abstract object CreateParameter(SqlParameter sqlParameter);
+    public abstract DbParameter CreateParameter(SqlParameter sqlParameter);
 
     /// <summary>
     /// Returns NpgsqlDbType for PostgreSql parameters. Throws <see cref="NotImplementedException"/> for anothers providers

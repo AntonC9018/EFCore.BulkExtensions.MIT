@@ -459,9 +459,9 @@ public class EFCoreBulkTest : IAssemblyFixture<DbAssemblyFixture>
                     CalculateStats = true
                 };
                 context.BulkInsert(entities, bulkConfig, (a) => WriteProgress(a));
-                Assert.Equal(EntitiesNumber - 1, bulkConfig.StatsInfo?.StatsNumberInserted);
-                Assert.Equal(0, bulkConfig.StatsInfo?.StatsNumberUpdated);
-                Assert.Equal(0, bulkConfig.StatsInfo?.StatsNumberDeleted);
+                Assert.Equal(EntitiesNumber - 1, bulkConfig.StatsInfo!.InsertedCount);
+                Assert.Equal(0, bulkConfig.StatsInfo!.UpdatedCount);
+                Assert.Equal(0, bulkConfig.StatsInfo!.DeletedCount);
 
                 foreach (var entity in entities)
                 {
@@ -534,9 +534,9 @@ public class EFCoreBulkTest : IAssemblyFixture<DbAssemblyFixture>
             context.BulkInsertOrUpdate(entities, bulkConfig, (a) => WriteProgress(a));
             if (dbServer == DbServerType.SQLServer)
             {
-                Assert.Equal(1, bulkConfig.StatsInfo?.StatsNumberInserted);
-                Assert.Equal(EntitiesNumber / 2 - 1, bulkConfig.StatsInfo?.StatsNumberUpdated);
-                Assert.Equal(0, bulkConfig.StatsInfo?.StatsNumberDeleted);
+                Assert.Equal(1, bulkConfig.StatsInfo?.InsertedCount);
+                Assert.Equal(EntitiesNumber / 2 - 1, bulkConfig.StatsInfo?.UpdatedCount);
+                Assert.Equal(0, bulkConfig.StatsInfo?.DeletedCount);
             }
         }
         else
@@ -583,9 +583,9 @@ public class EFCoreBulkTest : IAssemblyFixture<DbAssemblyFixture>
             bulkConfig.OnConflictUpdateWhereSql = (existing, inserted) => $"{inserted}.{nameof(Item.TimeUpdated)} > {existing}.{nameof(Item.TimeUpdated)}"; // can use nameof bacause in this case property name is same as column name 
 
             context.BulkInsertOrUpdateOrDelete(entities, bulkConfig, (a) => WriteProgress(a));
-            Assert.Equal(0, bulkConfig.StatsInfo?.StatsNumberInserted);
-            Assert.Equal(EntitiesNumber / 2, bulkConfig.StatsInfo?.StatsNumberUpdated);
-            Assert.Equal(EntitiesNumber / 2 - 1, bulkConfig.StatsInfo?.StatsNumberDeleted);
+            Assert.Equal(0, bulkConfig.StatsInfo?.InsertedCount);
+            Assert.Equal(EntitiesNumber / 2, bulkConfig.StatsInfo?.UpdatedCount);
+            Assert.Equal(EntitiesNumber / 2 - 1, bulkConfig.StatsInfo?.DeletedCount);
         }
         else
         {
@@ -630,9 +630,9 @@ public class EFCoreBulkTest : IAssemblyFixture<DbAssemblyFixture>
             context.BulkUpdate(entities, bulkConfig);
             if (dbServer == DbServerType.SQLServer)
             {
-                Assert.Equal(0, bulkConfig.StatsInfo?.StatsNumberInserted);
-                Assert.Equal(EntitiesNumber, bulkConfig.StatsInfo?.StatsNumberUpdated);
-                Assert.Equal(0, bulkConfig.StatsInfo?.StatsNumberDeleted);
+                Assert.Equal(0, bulkConfig.StatsInfo?.InsertedCount);
+                Assert.Equal(EntitiesNumber, bulkConfig.StatsInfo?.UpdatedCount);
+                Assert.Equal(0, bulkConfig.StatsInfo?.DeletedCount);
             }
         }
         else
@@ -690,9 +690,9 @@ public class EFCoreBulkTest : IAssemblyFixture<DbAssemblyFixture>
             context.BulkDelete(entities, bulkConfig);
             if (dbServer == DbServerType.SQLServer)
             {
-                Assert.Equal(0, bulkConfig.StatsInfo?.StatsNumberInserted);
-                Assert.Equal(0, bulkConfig.StatsInfo?.StatsNumberUpdated);
-                Assert.Equal(entities.Count, bulkConfig.StatsInfo?.StatsNumberDeleted);
+                Assert.Equal(0, bulkConfig.StatsInfo?.InsertedCount);
+                Assert.Equal(0, bulkConfig.StatsInfo?.UpdatedCount);
+                Assert.Equal(entities.Count, bulkConfig.StatsInfo?.DeletedCount);
             }
         }
         else

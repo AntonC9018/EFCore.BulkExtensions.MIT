@@ -7,15 +7,16 @@ using System.Linq.Expressions;
 namespace EFCore.BulkExtensions;
 
 /// <summary>
-/// Provides configration for EFCore BulkExtensions
+/// Provides configuration for EFCore BulkExtensions
 /// </summary>
 public class BulkConfig
 {
     /// <summary>
-    ///     Makes sure that entites are inserted to Db as ordered in entitiesList.
+    ///     Makes sure that entities are inserted into the database according to their order in entitiesList.
     /// </summary>
     /// <value>
-    ///     Default value is <c>true</c>, if table has Identity column (autoincrement) and IDs being 0 in list they will temporarily be changed automatically from 0s into range -N:-1.
+    ///     Default value is <c>true</c>, if table has Identity column (autoincrement) and
+    ///     IDs being 0 in list they will temporarily be changed automatically from 0s into range -N:-1.
     /// </value>
     public bool PreserveInsertOrder { get; set; } = true;
 
@@ -31,7 +32,7 @@ public class BulkConfig
     ///     Propagated to SqlBulkCopy util object.
     /// </summary>
     /// <value>
-    ///     Defalut value is 2000.
+    ///     Default value is 2000.
     /// </value>
     public int BatchSize { get; set; } = 2000;
 
@@ -101,7 +102,7 @@ public class BulkConfig
     public bool WithHoldlock { get; set; } = true;
 
     /// <summary>
-    ///     When set to <c>true</c> the result is return in <c>BulkConfig.StatsInfo { StatsNumberInserted, StatsNumberUpdated}</c>.
+    ///     When set to <c>true</c> the result is return in <c>BulkConfig.StatsInfo { InsertedCount, UpdatedCount}</c>.
     /// </summary>
     /// <remarks>
     ///     If used for pure Insert (with Batching) then SetOutputIdentity should also be configured because Merge have to be used.
@@ -120,7 +121,7 @@ public class BulkConfig
     ///     Used as object for returning Stats Info when <c>BulkConfig.CalculateStats = true</c>.
     /// </summary>
     /// <value>
-    ///     Contains info in Properties: <c>StatsNumberInserted, StatsNumberUpdated, StatsNumberDeleted</c>
+    ///     Contains info in Properties: <c>InsertedCount, UpdatedCount, DeletedCount</c>
     /// </value>
     public StatsInfo? StatsInfo { get; internal set; }
 
@@ -192,7 +193,7 @@ public class BulkConfig
     public Func<string, string, string>? OnConflictUpdateWhereSql { get; set; }
 
     /// <summary>
-    ///     When set to <c>true</c> it will adding (normal) Shadow Property and persist value. It Disables automatic discrimator, so it shoud be set manually.
+    ///     When set to <c>true</c> it will adding (normal) Shadow Property and persist value. It Disables automatic discriminator, so it should be set manually.
     /// </summary>
     public bool EnableShadowProperties { get; set; }
 
@@ -270,7 +271,7 @@ public class BulkConfig
     /// <value>
     ///     <c>Default, KeepIdentity, CheckConstraints, TableLock, KeepNulls, FireTriggers, UseInternalTransaction</c>
     /// </value>
-    public Microsoft.Data.SqlClient.SqlBulkCopyOptions SqlBulkCopyOptions { get; set; } // is superset of System.Data.SqlClient.SqlBulkCopyOptions, gets converted to the desired type
+    public SqlBulkCopyOptions SqlBulkCopyOptions { get; set; }
 
     /// <summary>
     ///     List of column order hints for improving performance.
@@ -300,7 +301,8 @@ public class BulkConfig
     internal object? SynchronizeFilter { get; private set; }
     
     internal bool OutputTableHasSqlActionColumn => CalculateStats 
-                                                   || (OperationType is OperationType.InsertOrUpdateOrDelete or OperationType.Delete); // In case of delete we need to able to filter out 'delete' rows from the output table
+        // In case of delete we need to able to filter out 'delete' rows from the output table
+        || OperationType is OperationType.InsertOrUpdateOrDelete or OperationType.Delete; 
 }
 
 /// <summary>
@@ -311,17 +313,17 @@ public class StatsInfo
     /// <summary>
     /// Indicates the number of inserted records.
     /// </summary>
-    public int StatsNumberInserted { get; set; }
+    public int InsertedCount { get; set; }
 
     /// <summary>
     /// Indicates the number of updated records.
     /// </summary>
-    public int StatsNumberUpdated { get; set; }
+    public int UpdatedCount { get; set; }
 
     /// <summary>
     /// Indicates the number of deleted records.
     /// </summary>
-    public int StatsNumberDeleted { get; set; }
+    public int DeletedCount { get; set; }
 }
 
 /// <summary>

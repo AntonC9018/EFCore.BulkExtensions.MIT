@@ -9,49 +9,66 @@ namespace EFCore.BulkExtensions;
 
 internal static class DbContextBulkTransaction
 {
-    public static void Execute<T>(DbContext context, Type? type, IList<T> entities, OperationType operationType, BulkConfig? bulkConfig, Action<decimal>? progress) where T : class
+    public static void Execute<T>(
+        DbContext context,
+        Type? type,
+        IList<T> entities,
+        OperationType operationType,
+        BulkConfig? bulkConfig,
+        Action<decimal>? progress) 
+        
+        where T : class
     {
         type ??= typeof(T);
 
-        using (ActivitySources.StartExecuteActivity(operationType, entities.Count))
+        using var activity = ActivitySources.StartExecuteActivity(operationType, entities.Count);
+
+        bool wontDeleteEntities = operationType 
+            is not OperationType.InsertOrUpdateOrDelete
+            and not OperationType.Truncate
+            and not OperationType.SaveChanges;
+        if (entities.Count == 0 && 
+            wontDeleteEntities &&
+            (bulkConfig == null || bulkConfig.CustomSourceTableName == null))
         {
-            if (entities.Count == 0 && 
-                operationType != OperationType.InsertOrUpdateOrDelete && 
-                operationType != OperationType.Truncate && 
-                operationType != OperationType.SaveChanges &&
-                (bulkConfig == null || bulkConfig.CustomSourceTableName == null))
-            {
-                return;
-            }
+            return;
+        }
 
-            if (operationType == OperationType.SaveChanges)
-            {
-                DbContextBulkTransactionSaveChanges.SaveChanges(context, bulkConfig, progress);
-                return;
-            }
-            else if (bulkConfig?.IncludeGraph == true)
-            {
-                DbContextBulkTransactionGraphUtil.ExecuteWithGraph(context, entities, operationType, bulkConfig, progress);
-            }
-            else
-            {
-                TableInfo tableInfo = TableInfo.CreateInstance(context, type, entities, operationType, bulkConfig);
+        if (operationType == OperationType.SaveChanges)
+        {
+            DbContextBulkTransactionSaveChanges.SaveChanges(context, bulkConfig, progress);
+        }
+        else if (bulkConfig?.IncludeGraph == true)
+        {
+            DbContextBulkTransactionGraphUtil.ExecuteWithGraph(context, entities, operationType, bulkConfig, progress);
+        }
+        else
+        {
+            TableInfo tableInfo = TableInfo.CreateInstance(context, type, entities, operationType, bulkConfig);
 
-                if (operationType == OperationType.Insert && !tableInfo.BulkConfig.SetOutputIdentity && tableInfo.BulkConfig.CustomSourceTableName == null)
+            switch (operationType)
+            {
+                case OperationType.Insert when
+                    !tableInfo.BulkConfig.SetOutputIdentity &&
+                    tableInfo.BulkConfig.CustomSourceTableName == null:
                 {
                     SqlBulkOperation.Insert(context, type, entities, tableInfo, progress);
+                    break;
                 }
-                else if (operationType == OperationType.Read)
+                case OperationType.Read:
                 {
                     SqlBulkOperation.Read(context, type, entities, tableInfo, progress);
+                    break;
                 }
-                else if (operationType == OperationType.Truncate)
+                case OperationType.Truncate:
                 {
                     SqlBulkOperation.Truncate(context, tableInfo);
+                    break;
                 }
-                else
+                default:
                 {
                     SqlBulkOperation.Merge(context, type, entities, tableInfo, operationType, progress);
+                    break;
                 }
             }
         }

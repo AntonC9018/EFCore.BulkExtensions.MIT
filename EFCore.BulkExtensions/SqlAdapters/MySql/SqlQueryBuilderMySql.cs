@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using Microsoft.Data.SqlClient;
 
@@ -252,7 +253,7 @@ public class SqlQueryBuilderMySql : QueryBuilderExtensions
     /// </summary>
     /// <param name="sqlParameter"></param>
     /// <returns></returns>
-    public override object CreateParameter(SqlParameter sqlParameter)
+    public override DbParameter CreateParameter(SqlParameter sqlParameter)
     {
         return sqlParameter;
     }

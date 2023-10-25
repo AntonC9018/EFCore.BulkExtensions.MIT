@@ -232,12 +232,23 @@ public class TableInfo
         }
 
         bool areSpecifiedUpdateByProperties = BulkConfig.UpdateByProperties?.Count > 0;
-        var primaryKeys = entityType.FindPrimaryKey()?.Properties?.ToDictionary(a => a.Name, b => b.GetColumnName(ObjectIdentifier) ?? string.Empty);
+        var primaryKeys = entityType
+            .FindPrimaryKey()?
+            .Properties
+            .ToDictionary(
+                a => a.Name, 
+                b => b.GetColumnName(ObjectIdentifier) ?? string.Empty);
         EntityPKPropertyColumnNameDict = primaryKeys ?? new Dictionary<string, string>();
 
         HasSinglePrimaryKey = primaryKeys?.Count == 1;
-        PrimaryKeysPropertyColumnNameDict = areSpecifiedUpdateByProperties ? BulkConfig.UpdateByProperties?.ToDictionary(a => a, b => allProperties.First(p => p.Name == b).GetColumnName(ObjectIdentifier) ?? string.Empty) ?? new()
-                                                                           : (primaryKeys ?? new Dictionary<string, string>());
+        PrimaryKeysPropertyColumnNameDict = areSpecifiedUpdateByProperties 
+            ? BulkConfig.UpdateByProperties!
+                .ToDictionary(
+                    a => a,
+                    b => allProperties
+                        .First(p => p.Name == b)
+                        .GetColumnName(ObjectIdentifier) ?? string.Empty) 
+            : primaryKeys ?? new();
 
         // load all derived type properties
         if (entityType.IsAbstract())
@@ -1221,9 +1232,9 @@ public class TableInfo
             }
             BulkConfig.StatsInfo = new StatsInfo
             {
-                StatsNumberUpdated = mergeCounts.Updated,
-                StatsNumberDeleted = mergeCounts.Deleted,
-                StatsNumberInserted = mergeCounts.Inserted,
+                UpdatedCount = mergeCounts.Updated,
+                DeletedCount = mergeCounts.Deleted,
+                InsertedCount = mergeCounts.Inserted,
             };
         }
     }
